@@ -25,7 +25,7 @@ def get_uin():
     candidates = []
     try:
         uin = None
-        out = subproc_succ(f"adb shell cat {MM_DIR}/shared_prefs/system_config_prefs.xml")
+        out = subproc_succ(f"adb shell su -c \"cat {MM_DIR}/shared_prefs/system_config_prefs.xml\"")
         for line in out.decode('utf-8').split("\n"):
             if "default_uin" in line:
                 line = PyQuery(line)
@@ -40,7 +40,7 @@ def get_uin():
 
     try:
         uin = None
-        out = subproc_succ(f"adb shell cat {MM_DIR}/shared_prefs/com.tencent.mm_preferences.xml")
+        out = subproc_succ(f"adb shell su -c \"cat {MM_DIR}/shared_prefs/com.tencent.mm_preferences.xml\"")
         for line in out.decode('utf-8').split("\n"):
             if "last_login_uin" in line:
                 line = PyQuery(line)
@@ -55,7 +55,7 @@ def get_uin():
 
     try:
         uin = None
-        out = subproc_succ(f"adb shell cat {MM_DIR}/shared_prefs/auth_info_key_prefs.xml")
+        out = subproc_succ(f"adb shell su -c \"cat {MM_DIR}/shared_prefs/auth_info_key_prefs.xml\"")
         for line in out.decode('utf-8').split("\n"):
             if "auth_uin" in line:
                 line = PyQuery(line)
@@ -69,7 +69,7 @@ def get_uin():
         logger.info(f"found uin={uin} in auth_info_key_prefs.xml")
 
     try:
-        out = subproc_succ(f"adb shell cat {MM_DIR}/MicroMsg/systemInfo.cfg")
+        out = subproc_succ(f"adb shell su -c \"cat {MM_DIR}/MicroMsg/systemInfo.cfg\"")
         uin = javaobj.loads(out).get(1, 0)
     except:
         logger.warning("default uin not found in systemInfo.cfg")
@@ -105,7 +105,7 @@ def get_imei():
     logger.info(f"found imei={imei} from iphonesubinfo")
     candidates.append(imei)
 
-    out = subproc_succ(f"adb shell cat {MM_DIR}/MicroMsg/CompatibleInfo.cfg")
+    out = subproc_succ(f"adb shell su -c \"cat {MM_DIR}/MicroMsg/CompatibleInfo.cfg\"")
     try:
         # https://gist.github.com/ChiChou/36556fd412a9e3216abecf06e084e4d9
         jobj = javaobj.loads(out)
@@ -128,7 +128,7 @@ def get_key(imei, uin):
         uin = uin.encode('ascii')
     if isinstance(imei, str):
         imei = imei.encode('ascii')
-    a = md5(imei + uin)
+    a = md5(imei + str(uin).encode('ascii'))
     return a.hexdigest()[:7]
 
 
